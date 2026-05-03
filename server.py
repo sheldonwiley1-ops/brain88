@@ -3,15 +3,18 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/state":
+        if self.path.startswith("/state"):
             self.send_response(200)
-            self.send_header('Content-type', 'application/json')
+            self.send_header("Content-type", "application/json")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
 
             self.wfile.write(json.dumps({
                 "harmony": 88,
                 "arc": 49,
                 "state": "STABLE",
+                "frequency_hz": 432,
                 "protocol": {
                     "breath_pattern": "4-4",
                     "sound_hz": 432,
@@ -21,11 +24,10 @@ class handler(BaseHTTPRequestHandler):
 
         else:
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
+            self.send_header("Content-type", "text/plain")
             self.end_headers()
             self.wfile.write(b'ENGINE88 LIVE')
 
 PORT = 8080
 server = HTTPServer(('', PORT), handler)
-print("Running on port", PORT)
 server.serve_forever()
